@@ -123,6 +123,76 @@
             margin-top: 20px;
         }
     </style>
+    <script>
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const iframe = document.getElementById('submission-frame');
+            
+            // Собираем данные формы
+            let dataHTML = '<!doctype html><html lang="ru"><head><meta charset="utf-8"><style>body{font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;} h2{color: #333;} .field{margin: 10px 0; padding: 8px; background: white; border-left: 3px solid #4CAF50;} .label{font-weight: bold; color: #555;} .value{color: #333; margin-left: 10px;}</style></head><body><h2>Данные формы успешно отправлены!</h2>';
+            
+            // Добавляем данные по разделам
+            dataHTML += '<h3>Личные данные</h3>';
+            for (const [key, value] of formData.entries()) {
+                if (['fullName', 'birthDate', 'age', 'phone', 'email', 'address'].includes(key)) {
+                    dataHTML += `<div class="field"><span class="label">${getFieldLabel(key)}:</span> <span class="value">${value || '—'}</span></div>`;
+                }
+            }
+            
+            dataHTML += '<h3>Увлечения</h3>';
+            const hobby = formData.get('hobby');
+            if (hobby) {
+                dataHTML += `<div class="field"><span class="label">Хобби:</span> <span class="value">${hobby}</span></div>`;
+            }
+            
+            const books = formData.getAll('favoriteBooks');
+            if (books.length > 0) {
+                dataHTML += `<div class="field"><span class="label">Любимые книги:</span> <span class="value">${books.join(', ')}</span></div>`;
+            }
+            
+            const sports = formData.getAll('sports');
+            if (sports.length > 0) {
+                dataHTML += `<div class="field"><span class="label">Виды спорта:</span> <span class="value">${sports.join(', ')}</span></div>`;
+            }
+            
+            dataHTML += '<h3>Домашние животные</h3>';
+            for (const [key, value] of formData.entries()) {
+                if (['hasPet', 'petType', 'petName', 'petCare'].includes(key)) {
+                    dataHTML += `<div class="field"><span class="label">${getFieldLabel(key)}:</span> <span class="value">${value || '—'}</span></div>`;
+                }
+            }
+            
+            dataHTML += '<p style="margin-top: 20px; color: #666; font-size: 12px;">Это демонстрация работы атрибута <code>target="submission-frame"</code> - форма отправила данные в этот iframe.</p>';
+            dataHTML += '</body></html>';
+            
+            // Загружаем данные в iframe
+            iframe.srcdoc = dataHTML;
+            
+            return false; // Предотвращаем обычную отправку
+        }
+        
+        function getFieldLabel(fieldName) {
+            const labels = {
+                'fullName': 'ФИО',
+                'birthDate': 'Дата рождения',
+                'age': 'Возраст',
+                'phone': 'Телефон',
+                'email': 'Электронная почта',
+                'address': 'Адрес',
+                'hobby': 'Хобби',
+                'favoriteBooks': 'Любимые книги',
+                'sports': 'Виды спорта',
+                'hasPet': 'Есть ли питомцы',
+                'petType': 'Вид животного',
+                'petName': 'Кличка',
+                'petCare': 'Особенности ухода'
+            };
+            return labels[fieldName] || fieldName;
+        }
+    </script>
 </head>
 <body>
     <h2>Анкета: личные данные, увлечения и домашние животные</h2>
@@ -132,7 +202,7 @@
 
     <h3><span>Заполните форму и нажмите кнопку "Отправить".</span></h3>
 
-    <form action="about:blank" method="post" target="submission-frame">
+    <form id="survey-form" action="about:blank" method="post" target="submission-frame" onsubmit="return handleFormSubmit(event);">
         <fieldset>
             <legend>Личные данные</legend>
             
